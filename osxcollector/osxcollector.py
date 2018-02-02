@@ -1195,7 +1195,7 @@ class Collector(object):
 
     @_foreach_homedir
     def _collect_ssh_info(self, homedir):
-        """Collect the values of stores ssh entries in the default .ssh path for all users"""
+        """Collect the values of authorized_keys and known_hosts in the default .ssh path for all users"""
         file_path = pathjoin(homedir.path, '.ssh/authorized_keys')
         if os.path.isfile(file_path):
             with Logger.Extra('osxcollector_subsection', 'authorized_keys'):
