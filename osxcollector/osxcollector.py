@@ -916,6 +916,7 @@ class Collector(object):
             ('accounts', self._collect_accounts),
             ('mail', self._collect_mail),
             ('executables', self._collect_binary_names_in_path),
+            ('ssh', self._collect_ssh_info),
             ('full_hash', self._collect_full_hash)
         ]
 
@@ -1191,6 +1192,62 @@ class Collector(object):
     def _version_string(self):
         """Log the current version of this program (osxcollector)"""
         Logger.log_dict({'osxcollector_version': __version__})
+
+    @_foreach_homedir
+    def _collect_ssh_info(self, homedir):
+        """Collect the values of stores ssh entries in the default .ssh path for all users"""
+        file_path = pathjoin(homedir.path, '.ssh/authorized_keys')
+        if os.path.isfile(file_path):
+            with Logger.Extra('osxcollector_subsection', 'authorized_keys'):
+                self._log_authorized_keys(file_path)
+
+        file_path = pathjoin(homedir.path, '.ssh/known_hosts')
+        if os.path.isfile(file_path):
+            with Logger.Extra('osxcollector_subsection', 'known_hosts'):
+                self._log_known_hosts(file_path)
+
+    def _log_authorized_keys(self, filepath):
+        """Parse authorized_keys file
+
+        Args:
+            file_name: authorized_keys file
+            """
+        try:
+            with open(filepath, 'r') as fp:
+                for line in fp:
+                    if not line.startswith('#'):
+                        line.strip('/n')
+                        line = line.split()
+                        entry = {}
+                        entry['key_type'] = line[0]
+                        entry['public_key'] = line[1]
+                        Logger.log_dict(entry)
+
+        except Exception as log_ssh_e:
+            Logger.log_exception(
+                log_ssh_e, message='failed _log_authorized_keys [{0}]'.format(filepath))
+
+    def _log_known_hosts(self, filepath):
+        """Parse known_hosts file
+
+        Args:
+            file_name: known_hosts file
+            """
+        try:
+            with open(filepath, 'r') as fp:
+                for line in fp:
+                    if not line.startswith('#'):
+                        line.strip('/n')
+                        line = line.split()
+                        entry = {}
+                        entry['hostname'] = line[0]
+                        entry['key_type'] = line[1]
+                        entry['public_key'] = line[2]
+                        Logger.log_dict(entry)
+
+        except Exception as log_ssh_e:
+            Logger.log_exception(
+                log_ssh_e, message='failed _log_known_hosts [{0}]'.format(filepath))
 
     def _collect_system_info(self):
         """Collect basic info about the system and system logs"""
