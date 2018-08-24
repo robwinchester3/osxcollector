@@ -148,13 +148,13 @@ Each line of the JSON file records 1 _piece of information_.  There are some com
 
 ##### File Records
 For records representing files there are a bunch of useful keys:
+* `atime`: The file accessed time.
 * `ctime`: The file creation time.
 * `mtime`: The file modified time.
 * `file_path`: The absolute path to the file.
 * `md5`: MD5 hash of the file contents.
 * `sha1`: SHA1 hash of the file contents.
 * `sha2`: SHA2 hash of the file contents.
-* `signature_chain`: The common names of the certs in the file's signing chain
 
 For records representing downloaded files:
 * `xattr-wherefrom`: A list containing the source and referrer URLs for the downloaded file.
